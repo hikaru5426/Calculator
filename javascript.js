@@ -1,5 +1,6 @@
 const container = document.querySelector("#container");
 const pScreen = document.querySelector("#screen");
+const pMalformedExpression = document.querySelector("#malformedExpression");
 const divBtnNumbers = document.querySelector("#btnNumbers");
 const btnOperations = document.querySelector("#btnOperations");
 
@@ -17,19 +18,23 @@ let number1;
 let number2;
 let operator;
 
-function add(number1, number2) {
+let currentNumber = "";
+let previousElement;
+pScreen.valid = true;
+
+function add() {
     return number1 + number2;
 }
 
-function subtract(number1, number2) {
+function subtract() {
     return number1 - number2;
 }
 
-function multiply(number1, number2) {
+function multiply() {
     return number1 * number2;
 }
 
-function divide(number1, number2) {
+function divide() {
     if (number2 !== 0) {
         return number1 / number2;
     } else {
@@ -40,43 +45,48 @@ function divide(number1, number2) {
 function operate() {
     switch (operator) {
         case "add":
-            return add(number1, number2);
+            return add();
             break;
         case "subtract":
-            return subtract(number1, number2);
+            return subtract();
             break;
         case "multiply":
-            return multiply(number1, number2);
+            return multiply();
             break;
         case "divide":
-            return divide(number1, number2);
+            return divide();
             break;
         default:
             console.log(`Defaut case met in operate function, operator = ${operator}`);
     }
 }
 
-function clear(){
+function clear() {
     number1 = undefined;
     number2 = undefined;
     operator = undefined;
 
+    currentNumber = "";
+    previousElement = undefined;
+
     pScreen.textContent = "";
+    pScreen.valid = true;
 }
 
-function equal(){
-    switch(operator){
-        case "add":
-            pScreen.textContent += ` = ${add(number1, number2)}`;
+function equal() {
+    number2 = Number(currentNumber);
+    switch (operator) {
+        case "+":
+            pScreen.textContent += ` = ${String(add())}`;
             break;
-        case "subtract":
-            pScreen.textContent += ` = ${subtract(number1, number2)}`;
+        case "-":
+            pScreen.textContent += ` = ${String(subtract())}`;
             break;
-        case "multiply":
-            pScreen.textContent += ` = ${multiply(number1, number2)}`;
+        case "x":
+            pScreen.textContent += ` = ${String(multiply())}`;
             break;
-        case "divide":
-            pScreen.textContent += ` = ${divide(number1, number2)}`;
+        case "/":
+            pScreen.textContent += ` = ${String(divide())}`;
             break;
         default:
             console.log(`default case met in equal function, operator = ${operator}`);
@@ -84,57 +94,54 @@ function equal(){
 }
 
 function operatorClicked(event) {
-    const sign = event.target.textContent;
-    switch(sign){
-        case "+":
-            operator = "add";
-            break;
-        case "-":
-            operator = "subtract";
-            break;
-        case "x":
-            operator = "multiply";
-            break;
-        case "/":
-            operator = "divide";
-            break;
-        default:
-            console.log(`default case met in operatorClicked function, sign = ${sign}`);
+    if (pScreen.valid) {
+        if (Number(previousElement) == previousElement && operator === undefined) {
+            operator = event.target.textContent;
+            number1 = Number(currentNumber);
+            currentNumber = "";
+            pScreen.textContent = `${number1} ${operator}`;
+            previousElement = operator;
+        } else {
+            pScreen.textContent = "Can't put an operator here, press clear to reset";
+            pScreen.valid = false;
+        }
     }
-
-    pScreen.textContent += ` ${sign}`;
-    console.log(`The operation clicked is ${operator}`);
 }
 
 function numberClicked(event) {
-    const number = Number(event.target.textContent);
+    if (pScreen.valid) {
+        const number = event.target.textContent;
 
-    if(number1 === undefined) {
-        number1 = number;
-        pScreen.textContent += String(number);
-    } else{
-        number2 = number;
-        pScreen.textContent += ` ${String(number)}`;
+        if (previousElement === undefined) {
+            currentNumber  = number;
+            pScreen.textContent = number;
+        } else if (Number(previousElement) == previousElement) {
+            currentNumber += number
+            pScreen.textContent += number;
+        } else {
+            currentNumber = number;
+            pScreen.textContent = `${number1} ${operator} ${currentNumber}`;
+        }
+
+        previousElement = currentNumber;
     }
-    
-    console.log(`The number clicked is ${number}`);
 }
 
-function createPage() {
-    for (let i = 9; i >= 0; i--) {
-        const btn = document.createElement("button");
-        btn.textContent = String(i);
-        btn.addEventListener("click", numberClicked)
-        divBtnNumbers.appendChild(btn);
+    function createPage() {
+        for (let i = 9; i >= 0; i--) {
+            const btn = document.createElement("button");
+            btn.textContent = String(i);
+            btn.addEventListener("click", numberClicked)
+            divBtnNumbers.appendChild(btn);
+        }
+
+        btnClear.addEventListener("click", clear);
+        btnEqual.addEventListener("click", equal);
+
+        btnOperations.childNodes.forEach(node => {
+            node.addEventListener("click", operatorClicked);
+        })
+
     }
 
-    btnClear.addEventListener("click", clear);
-    btnEqual.addEventListener("click", equal);
-
-    btnOperations.childNodes.forEach(node => {
-        node.addEventListener("click", operatorClicked);
-    })
-
-}
-
-createPage();
+    createPage();
