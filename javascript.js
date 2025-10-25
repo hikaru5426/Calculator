@@ -38,7 +38,7 @@ function divide() {
     if (number2 !== 0) {
         return number1 / number2;
     } else {
-        return "Error b = 0";
+        return "It is impossible to divide a number by 0";
     }
 }
 
