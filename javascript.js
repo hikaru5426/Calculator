@@ -2,6 +2,7 @@ const container = document.querySelector("#container");
 const pScreen = document.querySelector("#screen");
 const pMalformedExpression = document.querySelector("#malformedExpression");
 const divBtnNumbers = document.querySelector("#btnNumbers");
+const btnDot = document.querySelector("#btnDot");
 const btnOperations = document.querySelector("#btnOperations");
 
 const btnClear = document.querySelector("#btnClear");
@@ -58,7 +59,7 @@ function operate() {
         default:
             console.log(`Defaut case met in operate function, operator = ${operator}`);
     }
-    return (Math.round(result * 10**precision) / 10**precision);
+    return (Math.round(result * 10 ** precision) / 10 ** precision);
 }
 
 function clear() {
@@ -81,24 +82,26 @@ function equal() {
 
 }
 
-function operatorClicked(event) {
+function addOperator(event) {
     equal();
-
+    // Si il y a un nombre à l"écran
     if (Number(pScreen.textContent) == pScreen.textContent && operator === undefined) {
         operator = event.target.textContent;
-
         number1 = Number(pScreen.textContent);
         pScreen.textContent = operator;
-    }else operator = event.target.textContent;
+    }else if (operator !== undefined){
+        operator = event.target.textContent;
+        pScreen.textContent = operator;
+    }
 }
 
-function numberClicked(event) {
+function addNumber(event) {
     const number = event.target.textContent;
 
     // S'il y a déjà un/des chiffres à l'écran
     if (Number(pScreen.textContent) == pScreen.textContent) {
         pScreen.textContent += number;
-    } 
+    }
 
     // Si c'est le premier élément de l'opération ou que le dernier élément était un opérateur
     else {
@@ -108,19 +111,29 @@ function numberClicked(event) {
 
 }
 
+function addDot(event) {
+    if (pScreen.textContent !== "" && Number(pScreen.textContent) == pScreen.textContent) {
+        if (!pScreen.textContent.includes(".")) {
+            pScreen.textContent += ".";
+        }
+    }
+}
+
 function createPage() {
     for (let i = 9; i >= 0; i--) {
         const btn = document.createElement("button");
         btn.textContent = String(i);
-        btn.addEventListener("click", numberClicked)
+        btn.addEventListener("click", addNumber)
         divBtnNumbers.appendChild(btn);
     }
+
+    btnDot.addEventListener("click", addDot);
 
     btnClear.addEventListener("click", clear);
     btnEqual.addEventListener("click", equal);
 
     btnOperations.childNodes.forEach(node => {
-        node.addEventListener("click", operatorClicked);
+        node.addEventListener("click", addOperator);
     })
 
 }
