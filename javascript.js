@@ -12,16 +12,13 @@ const btnSubtract = document.querySelector("#btnSubtract");
 const btnMultiply = document.querySelector("#btnMultiply");
 const btnDivide = document.querySelector("#btnDivide");
 
+const precision = 2;
+
 
 
 let number1;
 let number2;
 let operator;
-const listOperator = ["+", "-", "x", "/"];
-
-let currentNumber = "";
-let previousElement;
-pScreen.valid = true;
 
 function add() {
     return number1 + number2;
@@ -44,22 +41,24 @@ function divide() {
 }
 
 function operate() {
+    let result;
     switch (operator) {
-        case "add":
-            return add();
+        case "+":
+            result = add();
             break;
-        case "subtract":
-            return subtract();
+        case "-":
+            result = subtract();
             break;
-        case "multiply":
-            return multiply();
+        case "x":
+            result = multiply();
             break;
-        case "divide":
-            return divide();
+        case "/":
+            result = divide();
             break;
         default:
             console.log(`Defaut case met in operate function, operator = ${operator}`);
     }
+    return (Math.round(result * 10**precision) / 10**precision);
 }
 
 function clear() {
@@ -67,90 +66,46 @@ function clear() {
     number2 = undefined;
     operator = undefined;
 
-    currentNumber = "";
-    previousElement = undefined;
-
     pScreen.textContent = "";
-    pScreen.valid = true;
     pMalformedExpression.textContent = "";
 }
 
 function equal() {
-    if (checkOperationValid()) {
-        number2 = Number(currentNumber);
-        previousElement = "=";
-        switch (operator) {
-            case "+":
-                pScreen.textContent += ` = ${String(add())}`;
-                break;
-            case "-":
-                pScreen.textContent += ` = ${String(subtract())}`;
-                break;
-            case "x":
-                pScreen.textContent += ` = ${String(multiply())}`;
-                break;
-            case "/":
-                pScreen.textContent += ` = ${String(divide())}`;
-                break;
-            default:
-                console.log(`default case met in equal function, operator = ${operator}`);
-        }
-    }else{
-        pScreen.textContent += "=";
+    if (number1 !== undefined && operator !== undefined && pScreen.textContent !== undefined && Number(pScreen.textContent) == pScreen.textContent) {
+        number2 = Number(pScreen.textContent);
+        pScreen.textContent = operate();
+        number1 = Number(pScreen.textContent);
+        operator = undefined;
+        number2 = undefined;
     }
 
-}
-
-function checkOperationValid() {
-    if (previousElement === "=" || !pScreen.valid) {
-        pMalformedExpression.textContent = "Malformed operation, press Clear to reset";
-        return false;
-    } else {
-        return true
-    }
 }
 
 function operatorClicked(event) {
+    equal();
 
-    if (checkOperationValid()) {
-        if (Number(previousElement) == previousElement && operator === undefined) {
-            operator = event.target.textContent;
+    if (Number(pScreen.textContent) == pScreen.textContent && operator === undefined) {
+        operator = event.target.textContent;
 
-            number1 = Number(currentNumber);
-            currentNumber = "";
-            pScreen.textContent = `${number1} ${operator}`;
-            previousElement = operator;
-        } else {
-            pMalformedExpression.textContent = "Malformed operation, press Clear to reset";
-            pScreen.valid = false;
-        }
-    }else pScreen.textContent += event.target.textContent;
+        number1 = Number(pScreen.textContent);
+        pScreen.textContent = operator;
+    }else operator = event.target.textContent;
 }
 
 function numberClicked(event) {
+    const number = event.target.textContent;
+
+    // S'il y a déjà un/des chiffres à l'écran
+    if (Number(pScreen.textContent) == pScreen.textContent) {
+        pScreen.textContent += number;
+    } 
+
+    // Si c'est le premier élément de l'opération ou que le dernier élément était un opérateur
+    else {
+        pScreen.textContent = number;
+    }
 
 
-    if (checkOperationValid()) {
-        const number = event.target.textContent;
-
-        // 1er chiffre
-        if (previousElement === undefined) {
-            currentNumber = number;
-            pScreen.textContent = number;
-
-            // Si dernier élément de l'opération était un chiffre
-        } else if (Number(previousElement) == previousElement) {
-            currentNumber += number
-            pScreen.textContent += number;
-
-            // Si dernier élément de l'opération était un opérateur
-        } else {
-            currentNumber = number;
-            pScreen.textContent = `${number1} ${operator} ${currentNumber}`;
-        }
-
-        previousElement = currentNumber;
-    }else pScreen.textContent += event.target.textContent;
 }
 
 function createPage() {
