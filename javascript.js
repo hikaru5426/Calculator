@@ -6,6 +6,7 @@ const btnDot = document.querySelector("#btnDot");
 const btnOperations = document.querySelector("#btnOperations");
 
 const btnClear = document.querySelector("#btnClear");
+const btnBackSpace = document.querySelector("#btnBackSpace");
 const btnEqual = document.querySelector("#btnEqual");
 
 const btnAdd = document.querySelector("#btnAdd");
@@ -62,6 +63,19 @@ function operate() {
     return (Math.round(result * 10 ** precision) / 10 ** precision);
 }
 
+function removeCharacter(event) {
+    if (pScreen.textContent !== "") {
+        // Si dernier charactère = nombre ou point
+        if (Number(pScreen.textContent.at(-1)) == pScreen.textContent.at(-1) || pScreen.textContent.at(-1) === ".") {
+            pScreen.textContent = pScreen.textContent.slice(0, -1);
+        }else{ // cas pour opérateur
+            pScreen.textContent = String(number1);
+            operator = undefined;
+        }
+    }
+
+}
+
 function clear() {
     number1 = undefined;
     number2 = undefined;
@@ -89,7 +103,7 @@ function addOperator(event) {
         operator = event.target.textContent;
         number1 = Number(pScreen.textContent);
         pScreen.textContent = operator;
-    }else if (operator !== undefined){
+    } else if (operator !== undefined) {
         operator = event.target.textContent;
         pScreen.textContent = operator;
     }
@@ -130,6 +144,7 @@ function createPage() {
     btnDot.addEventListener("click", addDot);
 
     btnClear.addEventListener("click", clear);
+    btnBackSpace.addEventListener("click", removeCharacter);
     btnEqual.addEventListener("click", equal);
 
     btnOperations.childNodes.forEach(node => {
